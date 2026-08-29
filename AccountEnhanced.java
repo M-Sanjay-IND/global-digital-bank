@@ -11,6 +11,8 @@ public class AccountEnhanced {
   private final double MIN_SAVINGS_BALANCE = 500.0;
   private final double MIN_CURRENT_BALANCE = 1000.0;
   private final int MIN_AGE = 18;
+  private final int MIN_PIN = 1000;
+  private final int MAX_PIN = 9999;
 
   public AccountEnhanced(int accountNumber, String name, int age, Integer pin, double initialBalance,
       String accountType) {
@@ -21,7 +23,7 @@ public class AccountEnhanced {
     }
     this.accountNumber = accountNumber;
     this.name = name;
-    if (pin == null || pin < 1000 || pin > 9999) {
+    if (pin == null || pin < MIN_PIN || pin > MAX_PIN) {
       this.pin = null;
     } else {
       this.pin = pin;
@@ -112,7 +114,7 @@ public class AccountEnhanced {
   }
 
   public boolean setPin(Integer pin1) {
-    if (pin1 == null || pin1 < 1000 || pin1 > 9999) {
+    if (pin1 == null || pin1 < MIN_PIN || pin1 > MAX_PIN) {
       return false;
     }
     this.pin = pin1;
