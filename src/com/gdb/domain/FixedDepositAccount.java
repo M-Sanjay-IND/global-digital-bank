@@ -22,4 +22,14 @@ public class FixedDepositAccount extends Account {
     double getInterestRate() {
         return this.interestRate;
     }
+
+    @Override
+    public void withdraw(double amount, int pin)
+            throws InvalidAmountException,
+            InsufficientBalanceException,
+            MinimumBalanceViolationException,
+            InactiveAccountException,
+            InvalidPinException,AccountException {
+        throw new AccountException("Pre-mature account cannot withdraw\n");
+    }
 }

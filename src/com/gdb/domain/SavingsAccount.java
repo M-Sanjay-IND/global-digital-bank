@@ -15,9 +15,7 @@ public class SavingsAccount extends Account {
                 throw new InvalidAmountException("Balance is below the minimum required for interest application.");
             }
             this.deposit(interest);
-        } catch (InactiveAccountException e) {
-            System.out.println("Cannot apply interest: " + e.getMessage());
-        } catch (InvalidAmountException e) {
+        } catch (InactiveAccountException | InvalidAmountException e) {
             System.out.println("Cannot apply interest: " + e.getMessage());
         }
     }
@@ -32,5 +30,17 @@ public class SavingsAccount extends Account {
 
     double getMinBalance() {
         return this.minBalance;
+    }
+    @Override
+    public void withdraw(double amount, int pin)
+            throws InvalidAmountException,
+            InsufficientBalanceException,
+            MinimumBalanceViolationException,
+            InactiveAccountException,
+            InvalidPinException, AccountException {
+        if ((super.getBalance() - amount) < this.getMinimumBalance()) {
+            throw new MinimumBalanceViolationException("Cannot withdraw. Minimum balance of \u20B9" + this.getMinimumBalance() + " required. Available after withdrawal: \u20B9" + (this.getBalance() - amount));
+        }
+        super.withdraw(amount, pin);
     }
 }

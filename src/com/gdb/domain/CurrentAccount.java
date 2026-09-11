@@ -18,4 +18,17 @@ public class CurrentAccount extends Account {
             System.out.println("Overdraft limit cannot be negative.");
         }
     }
+
+    @Override
+    public void withdraw(double amount, int pin)
+            throws InvalidAmountException,
+            InsufficientBalanceException,
+            MinimumBalanceViolationException,
+            InactiveAccountException,
+            InvalidPinException, AccountException {
+        if(amount > (super.getBalance() + this.getOverDraftLimit())){
+            throw new InsufficientBalanceException("Cannot withdraw. Withdrawal amount exceeds the balance and OverDraft Limit of "+this.getOverDraftLimit()+"\n");
+        }
+        super.withdraw(amount, pin);
+    }
 }

@@ -52,7 +52,7 @@ public class Account {
             InsufficientBalanceException,
             MinimumBalanceViolationException,
             InactiveAccountException,
-            InvalidPinException {
+            InvalidPinException, AccountException {
         validateActive();
         if (this.pin == null) {
             throw new InvalidPinException("PIN not set for this account");
@@ -101,7 +101,7 @@ public class Account {
         return this.pin != null;
     }
 
-    private double getMinimumBalance() {
+    double getMinimumBalance() {
         if ("Savings".equals(this.accountType)) {
             return MIN_BALANCE_SAVINGS;
         } else if ("Current".equals(this.accountType)) {
@@ -110,7 +110,7 @@ public class Account {
         return 0.0;
     }
 
-    private void validateActive() throws InactiveAccountException {
+    public void validateActive() throws InactiveAccountException {
         if (!"Active".equals(this.status)) {
             throw new InactiveAccountException("Account is inactive. Please reopen the account or contact support.");
         }
