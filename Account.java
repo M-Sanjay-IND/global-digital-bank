@@ -19,8 +19,8 @@ public class Account {
         if (age < MIN_AGE) {
             throw new IllegalArgumentException("Customer must be at least 18 years old. Provided: " + age);
         }
-        if (!"Savings".equals(accountType) && !"Current".equals(accountType)) {
-            throw new IllegalArgumentException("Account type must be 'Savings' or 'Current'. Provided: " + accountType);
+        if (!"Savings".equals(accountType) && !"Current".equals(accountType) && !"FIXED_DEPOSIT".equals(accountType) && !"SALARY".equals(accountType)) {
+            throw new IllegalArgumentException("Account type must be 'Savings' or 'Current' or 'FIXED_DEPOSIT' or 'SALARY'. Provided: " + accountType);
         }
         double minBalance = "Savings".equals(accountType) ? MIN_BALANCE_SAVINGS : MIN_BALANCE_CURRENT;
         if (initialBalance < minBalance) {
