@@ -1,0 +1,6 @@
+package com.gdb.domain;
+public class MinimumBalanceViolationException extends AccountException {
+    public MinimumBalanceViolationException(String message) {
+        super(message);
+    }
+}
