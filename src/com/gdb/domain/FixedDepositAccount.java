@@ -1,11 +1,16 @@
 package com.gdb.domain;
-public class FixedDepositAccount extends Account {
+public class FixedDepositAccount extends AbstractAccount {
     private int tenureMonths = 12;
     private double interestRate = 6.5;
 
     FixedDepositAccount(int accountNumber, String name, int age, double initialBalance, String accountType)
             throws IllegalArgumentException {
         super(accountNumber, name, age, initialBalance, "FIXED_DEPOSIT");
+    }
+
+    @Override
+    protected void processDebit(double amount) throws AccountException, MinimumBalanceViolationException, InsufficientBalanceException {
+        throw new AccountException("Pre-mature account cannot withdraw\n");
     }
 
     double calculateMaturityAmount() {
@@ -21,15 +26,5 @@ public class FixedDepositAccount extends Account {
 
     double getInterestRate() {
         return this.interestRate;
-    }
-
-    @Override
-    public void withdraw(double amount, int pin)
-            throws InvalidAmountException,
-            InsufficientBalanceException,
-            MinimumBalanceViolationException,
-            InactiveAccountException,
-            InvalidPinException,AccountException {
-        throw new AccountException("Pre-mature account cannot withdraw\n");
     }
 }

@@ -1,11 +1,18 @@
 package com.gdb.domain;
-public class SavingsAccount extends Account {
+public class SavingsAccount extends AbstractAccount {
     private final double minBalance = 1000.0;
     private final double interestRate = 4;
 
     public SavingsAccount(int accountNumber, String name, int age, double initialBalance, String accountType)
             throws IllegalArgumentException {
         super(accountNumber, name, age, initialBalance, "Savings");
+    }
+
+    @Override
+    protected void processDebit(double amount) throws MinimumBalanceViolationException {
+        if ((super.getBalance() - amount) < this.getMinimumBalance()) {
+            throw new MinimumBalanceViolationException("Cannot withdraw. Minimum balance of \u20B9" + this.getMinimumBalance() + " required. Available after withdrawal: \u20B9" + (this.getBalance() - amount));
+        }
     }
 
     void applyInterest() {
@@ -30,17 +37,5 @@ public class SavingsAccount extends Account {
 
     double getMinBalance() {
         return this.minBalance;
-    }
-    @Override
-    public void withdraw(double amount, int pin)
-            throws InvalidAmountException,
-            InsufficientBalanceException,
-            MinimumBalanceViolationException,
-            InactiveAccountException,
-            InvalidPinException, AccountException {
-        if ((super.getBalance() - amount) < this.getMinimumBalance()) {
-            throw new MinimumBalanceViolationException("Cannot withdraw. Minimum balance of \u20B9" + this.getMinimumBalance() + " required. Available after withdrawal: \u20B9" + (this.getBalance() - amount));
-        }
-        super.withdraw(amount, pin);
     }
 }
