@@ -2,7 +2,7 @@ package com.gdb.domain;
 
 import com.gdb.exceptions.*;
 
-public abstract class AbstractAccount {
+public abstract class AbstractAccount implements IAccount {
     private static final double MIN_BALANCE_SAVINGS = 500.0;
     private static final double MIN_BALANCE_CURRENT = 1000.0;
     private static final int MIN_AGE = 18;
@@ -39,6 +39,11 @@ public abstract class AbstractAccount {
         this.pin = null;
     }
 
+    public final void deposit(double amount)
+            throws InvalidAmountException, InactiveAccountException {
+        deposit(amount, this.pin);
+    }
+
     public final void deposit(double amount, Integer pin)
             throws InvalidAmountException, InactiveAccountException {
         validateActive();
@@ -46,6 +51,18 @@ public abstract class AbstractAccount {
             throw new InvalidAmountException("Deposit amount must be positive. Provided: \u20B9" + amount);
         }
         this.balance += amount;
+    }
+
+    public final void withdraw(double amount)
+            throws InvalidAmountException,
+            InsufficientBalanceException,
+            MinimumBalanceViolationException,
+            InactiveAccountException,
+            InvalidPinException, AccountException {
+        if (getPin() == null) {
+            throw new InvalidPinException("PIN not set for this account");
+        }
+        withdraw(amount, getPin());
     }
 
     public final void withdraw(double amount, int pin)
@@ -63,12 +80,6 @@ public abstract class AbstractAccount {
         }
         if (amount <= 0) {
             throw new InvalidAmountException("Withdraw amount must be positive. Provided: \u20B9" + amount);
-        }
-        if (amount > getBalance()) {
-            throw new InsufficientBalanceException("Insufficient balance. Available: \u20B9" + getBalance() + ", Requested: \u20B9" + amount);
-        }
-        if ((this.balance - amount) < getMinimumBalance()) {
-            throw new MinimumBalanceViolationException("Cannot withdraw. Minimum balance of \u20B9" + getMinimumBalance() + " required. Available after withdrawal: \u20B9" + (getBalance() - amount));
         }
         processDebit(amount);
         this.balance -= amount;
