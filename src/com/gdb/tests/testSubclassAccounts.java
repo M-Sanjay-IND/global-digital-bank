@@ -1,4 +1,10 @@
-package com.gdb.domain;
+package com.gdb.tests;
+
+import com.gdb.domain.CurrentAccount;
+import com.gdb.domain.FixedDepositAccount;
+import com.gdb.domain.SalaryAccount;
+import com.gdb.domain.SavingsAccount;
+
 public class testSubclassAccounts {
     public static void main(String[] args) {
         try {
@@ -12,7 +18,7 @@ public class testSubclassAccounts {
             SavingsAccount savingsAccount = new SavingsAccount(98765, "Bob Brown", 35, 3000.0, "Savings");
             SalaryAccount salaryAccount = null;
             try {
-                salaryAccount = new SalaryAccount(12345, "John Doe", 30, 5000.0, "Savings");
+                salaryAccount = new SalaryAccount(12345, "John Doe", 30, 5000.0, "SALARY");
                 salaryAccount.setEmployerName("Infosys");
             } catch (IllegalArgumentException e) {
                 System.out.println("Salary account could not be created: " + e.getMessage());

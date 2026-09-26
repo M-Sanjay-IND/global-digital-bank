@@ -1,5 +1,7 @@
 package com.gdb.domain;
 
+import com.gdb.exceptions.*;
+
 public class Account {
     private static final double MIN_BALANCE_SAVINGS = 500.0;
     private static final double MIN_BALANCE_CURRENT = 1000.0;

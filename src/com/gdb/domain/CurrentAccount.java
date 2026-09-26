@@ -1,4 +1,8 @@
 package com.gdb.domain;
+
+import com.gdb.exceptions.InsufficientBalanceException;
+import com.gdb.exceptions.MinimumBalanceViolationException;
+
 public class CurrentAccount extends AbstractAccount {
     private double overDraftLimit = 25000;
 
@@ -14,7 +18,7 @@ public class CurrentAccount extends AbstractAccount {
         }
     }
 
-    double getOverDraftLimit() {
+    public double getOverDraftLimit() {
         return this.overDraftLimit;
     }
 

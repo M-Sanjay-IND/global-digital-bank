@@ -1,4 +1,7 @@
-package com.gdb.domain;
+package com.gdb.tests;
+
+import com.gdb.domain.AccountEnhanced;
+
 public class TestAccountEnhanced {
         public static void main(String[] args) {
                 AccountEnhanced account = new AccountEnhanced(1001, "John Doe", 25, 0, 1000.0, "Savings");

@@ -1,9 +1,14 @@
 package com.gdb.domain;
+
+import com.gdb.exceptions.AccountException;
+import com.gdb.exceptions.InsufficientBalanceException;
+import com.gdb.exceptions.MinimumBalanceViolationException;
+
 public class FixedDepositAccount extends AbstractAccount {
     private int tenureMonths = 12;
     private double interestRate = 6.5;
 
-    FixedDepositAccount(int accountNumber, String name, int age, double initialBalance, String accountType)
+    public FixedDepositAccount(int accountNumber, String name, int age, double initialBalance, String accountType)
             throws IllegalArgumentException {
         super(accountNumber, name, age, initialBalance, "FIXED_DEPOSIT");
     }
@@ -20,11 +25,11 @@ public class FixedDepositAccount extends AbstractAccount {
         return principal * Math.pow((1 + rate), time);
 
     }
-    double getTenureMonths() {
+    public double getTenureMonths() {
         return this.tenureMonths;
     }
 
-    double getInterestRate() {
+    public double getInterestRate() {
         return this.interestRate;
     }
 }

@@ -1,4 +1,9 @@
 package com.gdb.domain;
+
+import com.gdb.exceptions.InactiveAccountException;
+import com.gdb.exceptions.InvalidAmountException;
+import com.gdb.exceptions.MinimumBalanceViolationException;
+
 public class SavingsAccount extends AbstractAccount {
     private final double minBalance = 1000.0;
     private final double interestRate = 4;
@@ -15,13 +20,13 @@ public class SavingsAccount extends AbstractAccount {
         }
     }
 
-    void applyInterest() {
+    public void applyInterest() {
         double interest = this.getBalance() * (this.interestRate / 100);
         try {
             if (this.getBalance() < minBalance) {
                 throw new InvalidAmountException("Balance is below the minimum required for interest application.");
             }
-            this.deposit(interest);
+            this.deposit(interest, super.getPin());
         } catch (InactiveAccountException | InvalidAmountException e) {
             System.out.println("Cannot apply interest: " + e.getMessage());
         }
@@ -35,7 +40,7 @@ public class SavingsAccount extends AbstractAccount {
         System.out.println("Interest Rate for the Savings Account is: " + this.interestRate + "%");
     }
 
-    double getMinBalance() {
+    public double getMinBalance() {
         return this.minBalance;
     }
 }

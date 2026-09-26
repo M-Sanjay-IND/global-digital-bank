@@ -1,4 +1,10 @@
-package com.gdb.domain;
+package com.gdb.tests;
+
+import com.gdb.domain.Account;
+import com.gdb.exceptions.AccountException;
+import com.gdb.exceptions.InactiveAccountException;
+import com.gdb.exceptions.InvalidAmountException;
+
 public class TestAccountExceptions {
     public static void main(String[] args) {
         System.out.println("============================================================");

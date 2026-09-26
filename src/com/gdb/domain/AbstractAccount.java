@@ -1,6 +1,8 @@
 package com.gdb.domain;
 
-abstract class AbstractAccount {
+import com.gdb.exceptions.*;
+
+public abstract class AbstractAccount {
     private static final double MIN_BALANCE_SAVINGS = 500.0;
     private static final double MIN_BALANCE_CURRENT = 1000.0;
     private static final int MIN_AGE = 18;
@@ -15,9 +17,7 @@ abstract class AbstractAccount {
     private String status;
     private Integer pin;
 
-    public AbstractAccount(int accountNumber, String name, int age,
-                   
-                   double initialBalance, String accountType)
+    public AbstractAccount(int accountNumber, String name, int age, double initialBalance, String accountType)
             throws IllegalArgumentException {
         if (age < MIN_AGE) {
             throw new IllegalArgumentException("Customer must be at least 18 years old. Provided: " + age);
@@ -39,7 +39,7 @@ abstract class AbstractAccount {
         this.pin = null;
     }
 
-    public final void deposit(double amount)
+    public final void deposit(double amount, Integer pin)
             throws InvalidAmountException, InactiveAccountException {
         validateActive();
         if (amount <= 0) {

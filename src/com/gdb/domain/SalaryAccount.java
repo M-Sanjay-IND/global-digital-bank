@@ -1,4 +1,9 @@
 package com.gdb.domain;
+
+import com.gdb.exceptions.AccountException;
+import com.gdb.exceptions.InsufficientBalanceException;
+import com.gdb.exceptions.MinimumBalanceViolationException;
+
 public class SalaryAccount extends AbstractAccount {
     private String employerName;
     private int inactiveMonths;
@@ -15,7 +20,7 @@ public class SalaryAccount extends AbstractAccount {
         }
     }
 
-    void setEmployerName(String employerName) {
+    public void setEmployerName(String employerName) {
         this.employerName = employerName;
     }
 
@@ -23,11 +28,11 @@ public class SalaryAccount extends AbstractAccount {
         this.inactiveMonths = inactiveMonths;
     }
 
-    String getEmployerName() {
+    public String getEmployerName() {
         return this.employerName;
     }
 
-    void getInactiveMonths() {
-        System.out.println("Inactive Months for the Salary Account is: " + this.inactiveMonths);
+    public int getInactiveMonths(){
+        return this.inactiveMonths;
     }
 }
