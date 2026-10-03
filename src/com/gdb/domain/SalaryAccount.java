@@ -20,6 +20,11 @@ public class SalaryAccount extends AbstractAccount {
         }
     }
 
+    @Override
+    public boolean canWithdraw(double amount) {
+        return amount > 0 && super.getBalance() >= amount;
+    }
+
     public void setEmployerName(String employerName) {
         this.employerName = employerName;
     }

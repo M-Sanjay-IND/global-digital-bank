@@ -18,6 +18,11 @@ public class CurrentAccount extends AbstractAccount {
         }
     }
 
+    @Override
+    public boolean canWithdraw(double amount) {
+        return amount > 0 && amount <= (super.getBalance() + this.overDraftLimit);
+    }
+
     public double getOverDraftLimit() {
         return this.overDraftLimit;
     }

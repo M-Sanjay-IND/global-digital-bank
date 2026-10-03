@@ -18,6 +18,11 @@ public class FixedDepositAccount extends AbstractAccount {
         throw new AccountException("Pre-mature account cannot withdraw\n");
     }
 
+    @Override
+    public boolean canWithdraw(double amount) {
+        return false;
+    }
+
     double calculateMaturityAmount() {
         double principal = this.getBalance();
         double rate = this.interestRate / 100;
