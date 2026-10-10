@@ -4,23 +4,62 @@ import com.gdb.command.*;
 import com.gdb.domain.*;
 import com.gdb.exceptions.*;
 import com.gdb.logging.TransactionLogger;
+import com.gdb.repository.AccountRepository;
+import com.gdb.repository.InMemoryAccountRepository;
+import com.gdb.repository.InMemoryTransactionRepository;
+import com.gdb.repository.RepositoryFactory;
+import com.gdb.repository.TransactionRepository;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class AccountService {
-    private final Map<Integer, IAccount> accounts;
+    private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
     private final TransactionLogger logger;
     private final TransferService transferService;
-    private int nextAccountNumber = 1001;
+
+    public AccountService(AccountRepository accountRepository, TransactionRepository transactionRepository,
+                          TransactionLogger logger, TransferService transferService) {
+        this.accountRepository = accountRepository != null ? accountRepository : resolveAccountRepository();
+        this.transactionRepository = transactionRepository != null ? transactionRepository : resolveTransactionRepository();
+        this.logger = logger;
+        this.transferService = transferService != null ? transferService : new TransferService();
+    }
+
+    public AccountService(AccountRepository accountRepository, TransactionRepository transactionRepository) {
+        this(accountRepository, transactionRepository, null, new TransferService());
+    }
+
+    public AccountService(AccountRepository accountRepository, TransactionRepository transactionRepository,
+                          TransactionLogger logger) {
+        this(accountRepository, transactionRepository, logger, new TransferService());
+    }
 
     public AccountService(TransactionLogger logger, TransferService transferService) {
-        this.accounts = new ConcurrentHashMap<>();
-        this.logger = logger;
-        this.transferService = transferService;
+        this(resolveAccountRepository(), resolveTransactionRepository(), logger, transferService);
     }
 
     public AccountService(TransactionLogger logger) {
-        this(logger, new TransferService());
+        this(resolveAccountRepository(), resolveTransactionRepository(), logger, new TransferService());
+    }
+
+    public AccountService() {
+        this(resolveAccountRepository(), resolveTransactionRepository(), null, new TransferService());
+    }
+
+    private static AccountRepository resolveAccountRepository() {
+        try {
+            return RepositoryFactory.getAccountRepository();
+        } catch (UnsupportedOperationException e) {
+            return new InMemoryAccountRepository();
+        }
+    }
+
+    private static TransactionRepository resolveTransactionRepository() {
+        try {
+            return RepositoryFactory.getTransactionRepository();
+        } catch (UnsupportedOperationException e) {
+            return new InMemoryTransactionRepository();
+        }
     }
 
     public IAccount openAccount(String type, String name, int age, double initialBalance) {
@@ -28,14 +67,14 @@ public class AccountService {
     }
 
     public IAccount openAccount(String type, String name, int age, double initialBalance, int tenureYears) {
-        int accNo = nextAccountNumber++;
+        int accNo = accountRepository.nextAccountNumber();
         IAccount account = AccountFactory.createAccount(accNo, name, age, initialBalance, type, tenureYears);
-        accounts.put(accNo, account);
+        accountRepository.save(account);
         return account;
     }
 
     public void closeAccount(int accountNumber, int pin) throws AccountException {
-        IAccount account = accounts.get(accountNumber);
+        IAccount account = getAccount(accountNumber);
         if (account == null) {
             throw new AccountException("Account not found: " + accountNumber);
         }
@@ -44,16 +83,21 @@ public class AccountService {
         }
         if (account instanceof Account acc) {
             acc.closeAccount();
+            accountRepository.update(acc);
         }
     }
 
     public Transaction deposit(int accountNumber, double amount) throws Exception {
-        IAccount account = accounts.get(accountNumber);
+        IAccount account = getAccount(accountNumber);
         if (account == null) {
             throw new AccountException("Account not found: " + accountNumber);
         }
         DepositCommand cmd = new DepositCommand((Account) account, amount);
         cmd.execute();
+        accountRepository.update(account);
+        if (transactionRepository != null) {
+            transactionRepository.save(cmd.getTransaction());
+        }
         if (logger != null) {
             logger.log(cmd);
         }
@@ -61,12 +105,16 @@ public class AccountService {
     }
 
     public Transaction withdraw(int accountNumber, double amount, int pin) throws Exception {
-        IAccount account = accounts.get(accountNumber);
+        IAccount account = getAccount(accountNumber);
         if (account == null) {
             throw new AccountException("Account not found: " + accountNumber);
         }
         WithdrawCommand cmd = new WithdrawCommand((Account) account, amount, pin);
         cmd.execute();
+        accountRepository.update(account);
+        if (transactionRepository != null) {
+            transactionRepository.save(cmd.getTransaction());
+        }
         if (logger != null) {
             logger.log(cmd);
         }
@@ -74,16 +122,21 @@ public class AccountService {
     }
 
     public Transaction transfer(int fromAccNo, int toAccNo, double amount, int pin) throws Exception {
-        IAccount fromAccount = accounts.get(fromAccNo);
+        IAccount fromAccount = getAccount(fromAccNo);
         if (fromAccount == null) {
             throw new AccountException("Account not found: " + fromAccNo);
         }
-        IAccount toAccount = accounts.get(toAccNo);
+        IAccount toAccount = getAccount(toAccNo);
         if (toAccount == null) {
             throw new AccountException("Account not found: " + toAccNo);
         }
         TransferCommand cmd = new TransferCommand((Account) fromAccount, (Account) toAccount, amount, pin);
         cmd.execute();
+        accountRepository.update(fromAccount);
+        accountRepository.update(toAccount);
+        if (transactionRepository != null) {
+            transactionRepository.save(cmd.getTransaction());
+        }
         if (logger != null) {
             logger.log(cmd);
         }
@@ -91,28 +144,59 @@ public class AccountService {
     }
 
     public IAccount getAccount(int accountNumber) {
-        return accounts.get(accountNumber);
+        return accountRepository.findById(accountNumber).orElse(null);
     }
 
     public Collection<IAccount> getAllAccounts() {
-        return new ArrayList<>(accounts.values());
+        return accountRepository.findAll();
     }
 
     public List<Transaction> getTransactionHistory() {
-        if (logger == null) {
-            return Collections.emptyList();
-        }
-        List<TransactionCommand> commands = logger.readAll();
-        List<Transaction> transactions = new ArrayList<>();
-        for (TransactionCommand cmd : commands) {
-            if (cmd != null && cmd.getTransaction() != null) {
-                transactions.add(cmd.getTransaction());
+        if (transactionRepository != null) {
+            List<Transaction> txns = transactionRepository.findAll();
+            if (!txns.isEmpty()) {
+                return txns;
             }
         }
-        return transactions;
+        if (logger != null) {
+            List<TransactionCommand> commands = logger.readAll();
+            List<Transaction> transactions = new ArrayList<>();
+            for (TransactionCommand cmd : commands) {
+                if (cmd != null && cmd.getTransaction() != null) {
+                    transactions.add(cmd.getTransaction());
+                }
+            }
+            return transactions;
+        }
+        return Collections.emptyList();
+    }
+
+    public List<Transaction> getTransactionHistory(int accountNumber) {
+        if (transactionRepository != null) {
+            return transactionRepository.findByAccount(accountNumber);
+        }
+        return getTransactionHistory().stream()
+            .filter(t -> t.getAccountNumber() == accountNumber || t.getFromAccount() == accountNumber || t.getToAccount() == accountNumber)
+            .toList();
     }
 
     public int getNextAccountNumber() {
-        return nextAccountNumber;
+        return accountRepository.nextAccountNumber();
+    }
+
+    public AccountRepository getAccountRepository() {
+        return accountRepository;
+    }
+
+    public TransactionRepository getTransactionRepository() {
+        return transactionRepository;
+    }
+
+    public TransactionLogger getLogger() {
+        return logger;
+    }
+
+    public TransferService getTransferService() {
+        return transferService;
     }
 }

@@ -1,47 +1,62 @@
-# Activity 20: Menu-Driven Console User Interface (AccountUI)
+# Activity 22: JDBC – Connection Management and Schema Initialization
 
 ## 📌 Overview
-Activity 20 introduces `AccountUI`, an interactive, menu-driven console user interface operating on top of `AccountService`. This layer bridges human interaction with the underlying domain entities, business rules, and logging infrastructure.
+Enterprise banking systems rely on relational database management systems (RDBMS) such as PostgreSQL, Oracle, or SQLite for mission-critical transactional persistence with ACID compliance. 
+
+In this activity, you establish the foundational database infrastructure for Global Digital Bank using Java Database Connectivity (JDBC). You define a `ConnectionProvider` abstraction to isolate connection acquisition, implement `JdbcConnectionProvider` to connect to SQLite databases, build `SchemaInitializer` to execute SQL DDL scripts that create the `accounts` and `transactions` tables, and configure `RepositoryFactory` to wire the database provider.
 
 ---
 
 ## 🏗️ Architecture Diagram
 
 ```
-┌─────────────────────────────────────────┐
-│              AccountUI                  │  ← Presentation Layer (Console Menu)
-└────────────────────┬────────────────────┘
-                     │ delegates
-                     ▼
-┌─────────────────────────────────────────┐
-│            AccountService               │  ← Orchestration / Service Layer
-└────────┬───────────┬───────────┬────────┘
-         │           │           │
-         ▼           ▼           ▼
-   AccountFactory  Transfer   Transaction
-                   Service      Logger
+┌────────────────────────────────────────────────────────┐
+│                   RepositoryFactory                    │  ← Infrastructure Factory
+└──────────────┬──────────────────────────┬──────────────┘
+               │                          │
+               │ initializes              │ provides
+               ▼                          ▼
+┌──────────────────────────────┐ ┌──────────────────────────────┐
+│      SchemaInitializer       │ │      ConnectionProvider      │  ← Connection Abstraction
+│  (executes schema.sql DDL)   │ └──────────────┬───────────────┘
+└──────────────────────────────┘                │
+                                                ▼
+                                 ┌──────────────────────────────┐
+                                 │    JdbcConnectionProvider    │  ← SQLite Driver Manager
+                                 └──────────────┬───────────────┘
+                                                │
+                                                ▼
+                                         ┌──────────────┐
+                                         │ SQLite DB    │
+                                         │ (gdb.db)     │
+                                         └──────────────┘
 ```
 
 ---
 
-## 📋 Features
+## 📋 Core Components
 
-1. **Interactive Menu Navigation**
-   - Option 1: Open New Account (Savings, Current, Salary, Fixed Deposit)
-   - Option 2: Deposit Funds
-   - Option 3: Withdraw Funds (PIN-protected)
-   - Option 4: Transfer Funds (PIN-protected, tenure daily limit enforced)
-   - Option 5: View Account Details
-   - Option 6: List All Registered Accounts
-   - Option 7: View Transaction Audit History
-   - Option 8: Close Account
-   - Option 0: Exit Application
+1. **`ConnectionProvider` Interface**
+   - Declares the connection acquisition and lifecycle contract: `getConnection()`, `shutdown()`, and `getProviderName()`.
 
-2. **Decoupled Stream I/O**
-   - Supports dependency injection of `InputStream` and `PrintStream` for automated testing and simulation.
+2. **`JdbcConnectionProvider`**
+   - Direct JDBC connection provider dynamically loading SQLite JDBC driver (`org.sqlite.JDBC`) and managing connections via `DriverManager.getConnection(url)`.
 
-3. **Exception Safety**
-   - Intercepts and displays domain-specific errors (`AccountException`, `InvalidPinException`, `InsufficientBalanceException`, `InactiveAccountException`, `InvalidAmountException`, etc.) without application termination.
+3. **`schema.sql` DDL Script**
+   - Idempotent table creation script for:
+     - `accounts`: `account_number`, `account_holder_name`, `age`, `balance`, `account_type`, `status`, `pin`, `opening_date`, `overdraft_used`, `interest_earned`.
+     - `transactions`: `transaction_id`, `timestamp`, `account_number`, `type`, `amount`, `balance_after`, `status`, `from_account`, `to_account`, `description`.
+
+4. **`SchemaInitializer`**
+   - Automated startup migration helper executing `schema.sql` statements via JDBC `Statement.execute()`.
+
+5. **`persistence.properties`**
+   - Declares:
+     ```properties
+     persistence.mode=jdbc
+     persistence.db.url=jdbc:sqlite:gdb.db
+     persistence.db.driver=org.sqlite.JDBC
+     ```
 
 ---
 
@@ -50,19 +65,14 @@ Activity 20 introduces `AccountUI`, an interactive, menu-driven console user int
 ### Windows (PowerShell)
 ```powershell
 New-Item bin -ItemType Directory -Force | Out-Null
-Copy-Item src\main\resources\config bin -Recurse -Force
-javac -encoding UTF-8 -d bin (Get-ChildItem -Recurse -Filter *.java src).FullName
-java -cp bin com.gdb.tests.TestAccountUI
-```
-
-### Run Interactive Console App
-```powershell
-java -cp bin com.gdb.Main
+Copy-Item src\main\resources\* bin -Recurse -Force
+javac -encoding UTF-8 -cp "lib/*;." -d bin (Get-ChildItem -Recurse -Filter *.java src).FullName
+java -cp "lib/*;bin" com.gdb.tests.TestJdbcConnection
 ```
 
 ### Linux & macOS (Bash)
 ```bash
-mkdir -p bin && cp -r src/main/resources/config bin/
-javac -encoding UTF-8 -d bin $(find src -name "*.java")
-java -cp bin com.gdb.tests.TestAccountUI
+mkdir -p bin && cp -r src/main/resources/* bin/
+javac -encoding UTF-8 -cp "lib/*:." -d bin $(find src -name "*.java")
+java -cp "lib/*:bin" com.gdb.tests.TestJdbcConnection
 ```
