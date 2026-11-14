@@ -74,6 +74,11 @@ public class JdbcTransactionRepository implements TransactionRepository {
                 } catch (SQLException ignored) {
                 }
                 throw new DataAccessException("Batch save of " + batch.size() + " transactions failed and was rolled back: " + e.getMessage(), e);
+            } finally {
+                try {
+                    conn.setAutoCommit(true);
+                } catch (SQLException ignored) {
+                }
             }
         } catch (SQLException e) {
             throw new DataAccessException("Batch save failed: " + e.getMessage(), e);

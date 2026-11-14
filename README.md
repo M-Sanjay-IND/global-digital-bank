@@ -21,6 +21,7 @@ src/com/gdb/
 ├── db/                 # JDBC Foundation, Connection Providers & Schema Management
 │   ├── ConnectionProvider.java
 │   ├── DataMigrator.java
+│   ├── HikariConnectionProvider.java
 │   ├── JdbcConnectionProvider.java
 │   └── SchemaInitializer.java
 ├── domain/             # Core banking entities, account hierarchies & rules engine
@@ -72,6 +73,7 @@ src/com/gdb/
     ├── TestAccountRulesEngineProperties.java
     ├── TestAccountService.java
     ├── TestAccountUI.java
+    ├── TestConnectionPooling.java
     ├── TestBridgeLogging.java
     ├── TestCommandLogging.java
     ├── TestDynamicAccountRules.java
@@ -91,6 +93,7 @@ src/com/gdb/
 
 1. **JDBC Foundation & Connection Provider (`ConnectionProvider`, `JdbcConnectionProvider`)**
    - Abstraction of database connection acquisition and lifecycle management.
+   - Optional HikariCP pooling via `HikariConnectionProvider`, switched with `persistence.pool.enabled` (Activity 25). See `docs/ACTIVITY_25.md`.
    - SQLite JDBC integration (`org.sqlite.JDBC`) with automated DDL migration via `SchemaInitializer` and `schema.sql`.
 
 2. **Repository Pattern (`AccountRepository`, `TransactionRepository`)**
@@ -133,7 +136,7 @@ src/com/gdb/
 ## 🛠️ Tech Stack & Prerequisites
 
 - **Language**: Java 17+
-- **Database / JDBC**: SQLite JDBC (`sqlite-jdbc-3.44.1.0.jar`)
+- **Database / JDBC**: SQLite JDBC (`sqlite-jdbc-3.44.1.0.jar`), HikariCP 5.0.1 connection pooling
 - **Logging**: SLF4J Simple Runtime
 - **Configuration**: Java Properties (`.properties`)
 - **Persistence**: Relational SQLite (`gdb.db`), Binary Serialization (`.ser`), In-Memory Store
