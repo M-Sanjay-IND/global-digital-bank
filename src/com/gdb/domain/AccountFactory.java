@@ -19,4 +19,16 @@ public class AccountFactory {
             String accountType) {
         return createAccount(accountNumber, name, age, initialBalance, accountType, 0);
     }
+
+    /**
+     * Rebuilds an account from persisted state. Constructors enforce opening-balance rules that a stored
+     * balance (e.g. an overdrawn Current account) may legitimately violate, so the account is built with a
+     * safe amount and the real balance, status, PIN and tenure are then restored.
+     */
+    public static IAccount restore(int accountNumber, String name, int age, double balance, String accountType,
+            String status, Integer pin, int tenureYears) {
+        IAccount account = createAccount(accountNumber, name, age, Math.max(balance, 1000.0), accountType, tenureYears);
+        ((Account) account).restoreState(balance, status, pin, tenureYears);
+        return account;
+    }
 }

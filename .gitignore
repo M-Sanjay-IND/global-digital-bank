@@ -38,3 +38,7 @@ build/
 
 ### Mac OS ###
 .DS_Store
+### GDB file-mode data (generated at runtime) ###
+data/*.csv
+data/*.bak.*
+data/*.tmp

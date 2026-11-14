@@ -45,6 +45,11 @@ src/com/gdb/
 │   ├── InvalidAmountException.java
 │   ├── InvalidPinException.java
 │   └── MinimumBalanceViolationException.java
+├── file/               # CSV mapping, atomic file writes & backups (Activity 26)
+│   ├── AtomicFileWriter.java
+│   ├── BackupManager.java
+│   ├── CsvFile.java
+│   └── CsvMapper.java
 ├── logging/            # Bridge Pattern logging backends & file persistence
 │   ├── DatabaseLogDestination.java
 │   ├── FileLogDestination.java
@@ -54,6 +59,8 @@ src/com/gdb/
 │   └── TransactionLogger.java
 ├── repository/         # Repository Pattern contracts, factory & in-memory stores
 │   ├── AccountRepository.java
+│   ├── FileAccountRepository.java
+│   ├── FileTransactionRepository.java
 │   ├── InMemoryAccountRepository.java
 │   ├── JdbcAccountRepository.java
 │   ├── JdbcTransactionRepository.java
@@ -77,6 +84,7 @@ src/com/gdb/
     ├── TestBridgeLogging.java
     ├── TestCommandLogging.java
     ├── TestDynamicAccountRules.java
+    ├── TestFileRepository.java
     ├── TestInterfaceFactory.java
     ├── TestJdbcAccountRepository.java
     ├── TestJdbcTransactionRepository.java
@@ -94,6 +102,7 @@ src/com/gdb/
 1. **JDBC Foundation & Connection Provider (`ConnectionProvider`, `JdbcConnectionProvider`)**
    - Abstraction of database connection acquisition and lifecycle management.
    - Optional HikariCP pooling via `HikariConnectionProvider`, switched with `persistence.pool.enabled` (Activity 25). See `docs/ACTIVITY_25.md`.
+   - `FileAccountRepository` / `FileTransactionRepository` store CSV with atomic writes and timestamped backups when `persistence.mode=file` (Activity 26). See `docs/ACTIVITY_26.md`.
    - SQLite JDBC integration (`org.sqlite.JDBC`) with automated DDL migration via `SchemaInitializer` and `schema.sql`.
 
 2. **Repository Pattern (`AccountRepository`, `TransactionRepository`)**
@@ -139,7 +148,7 @@ src/com/gdb/
 - **Database / JDBC**: SQLite JDBC (`sqlite-jdbc-3.44.1.0.jar`), HikariCP 5.0.1 connection pooling
 - **Logging**: SLF4J Simple Runtime
 - **Configuration**: Java Properties (`.properties`)
-- **Persistence**: Relational SQLite (`gdb.db`), Binary Serialization (`.ser`), In-Memory Store
+- **Persistence**: Relational SQLite (`gdb.db`), CSV files (`.csv`), Binary Serialization (`.ser`), In-Memory Store
 - **Build / Run Tool**: `javac`, `java`, PowerShell / Bash
 
 ---

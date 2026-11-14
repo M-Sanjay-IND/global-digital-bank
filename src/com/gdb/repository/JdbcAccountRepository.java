@@ -1,7 +1,6 @@
 package com.gdb.repository;
 
 import com.gdb.db.ConnectionProvider;
-import com.gdb.domain.Account;
 import com.gdb.domain.AccountFactory;
 import com.gdb.domain.IAccount;
 import com.gdb.exceptions.DataAccessException;
@@ -240,16 +239,8 @@ public class JdbcAccountRepository implements AccountRepository {
         int pinValue = rs.getInt("pin");
         Integer pin = rs.wasNull() ? null : pinValue;
 
-        // Constructors enforce opening-balance rules that a stored balance (e.g. an overdrawn
-        // Current account) may legitimately violate, so build with a safe amount and restore the real state.
-        IAccount account = AccountFactory.createAccount(
-            number, rs.getString("account_holder_name"), rs.getInt("age"),
-            Math.max(balance, 1000.0), rs.getString("account_type"), tenure);
-        if (!(account instanceof Account concrete)) {
-            throw new DataAccessException("Unsupported account implementation for #" + number);
-        }
-        concrete.restoreState(balance, rs.getString("status"), pin, tenure);
-        return concrete;
+        return AccountFactory.restore(number, rs.getString("account_holder_name"), rs.getInt("age"),
+            balance, rs.getString("account_type"), rs.getString("status"), pin, tenure);
     }
 
     private static double overdraftUsed(IAccount account) {

@@ -4,6 +4,7 @@ import com.gdb.db.ConnectionProvider;
 import com.gdb.db.HikariConnectionProvider;
 import com.gdb.db.JdbcConnectionProvider;
 import com.gdb.db.SchemaInitializer;
+import com.gdb.file.BackupManager;
 import java.io.*;
 import java.util.Properties;
 
@@ -64,6 +65,26 @@ public class RepositoryFactory {
         return new HikariConnectionProvider(url, driver, settings);
     }
 
+    /** CSV account store from {@code persistence.file.*} settings (backups.keep=0 disables backups). */
+    public static AccountRepository createFileAccountRepository(Properties props) {
+        return new FileAccountRepository(filePath(props, "persistence.file.accounts", "accounts.csv"), backupManager(props));
+    }
+
+    /** CSV transaction store from {@code persistence.file.*} settings. */
+    public static TransactionRepository createFileTransactionRepository(Properties props) {
+        return new FileTransactionRepository(filePath(props, "persistence.file.transactions", "transactions.csv"), backupManager(props));
+    }
+
+    private static java.nio.file.Path filePath(Properties props, String key, String defaultName) {
+        String dir = props.getProperty("persistence.file.dir", "data").trim();
+        return java.nio.file.Path.of(dir, props.getProperty(key, defaultName).trim());
+    }
+
+    private static BackupManager backupManager(Properties props) {
+        int keep = intProperty(props, "persistence.file.backups.keep", 5);
+        return keep <= 0 ? null : new BackupManager(keep);
+    }
+
     private static int intProperty(Properties props, String key, int defaultValue) {
         String value = props.getProperty(key);
         if (value == null || value.isBlank()) {
@@ -90,6 +111,8 @@ public class RepositoryFactory {
             String mode = getPersistenceMode();
             if ("jdbc".equals(mode)) {
                 accountRepositoryInstance = new JdbcAccountRepository(getConnectionProvider());
+            } else if ("file".equals(mode)) {
+                accountRepositoryInstance = createFileAccountRepository(loadPersistenceProperties());
             } else {
                 accountRepositoryInstance = new InMemoryAccountRepository();
             }
@@ -102,6 +125,8 @@ public class RepositoryFactory {
             String mode = getPersistenceMode();
             if ("jdbc".equals(mode)) {
                 transactionRepositoryInstance = new JdbcTransactionRepository(getConnectionProvider());
+            } else if ("file".equals(mode)) {
+                transactionRepositoryInstance = createFileTransactionRepository(loadPersistenceProperties());
             } else {
                 transactionRepositoryInstance = new InMemoryTransactionRepository();
             }
