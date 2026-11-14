@@ -71,10 +71,10 @@ public class RepositoryFactory {
         if (transactionRepositoryInstance == null) {
             String mode = getPersistenceMode();
             if ("jdbc".equals(mode)) {
-                getConnectionProvider();
-                throw new UnsupportedOperationException("JdbcTransactionRepository will be implemented in Activity 24. Use memory mode or TestJdbcConnection for Activity 22.");
+                transactionRepositoryInstance = new JdbcTransactionRepository(getConnectionProvider());
+            } else {
+                transactionRepositoryInstance = new InMemoryTransactionRepository();
             }
-            transactionRepositoryInstance = new InMemoryTransactionRepository();
         }
         return transactionRepositoryInstance;
     }

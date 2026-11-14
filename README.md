@@ -20,6 +20,7 @@ src/com/gdb/
 │   └── SimulatedDatabase.java
 ├── db/                 # JDBC Foundation, Connection Providers & Schema Management
 │   ├── ConnectionProvider.java
+│   ├── DataMigrator.java
 │   ├── JdbcConnectionProvider.java
 │   └── SchemaInitializer.java
 ├── domain/             # Core banking entities, account hierarchies & rules engine
@@ -54,6 +55,7 @@ src/com/gdb/
 │   ├── AccountRepository.java
 │   ├── InMemoryAccountRepository.java
 │   ├── JdbcAccountRepository.java
+│   ├── JdbcTransactionRepository.java
 │   ├── InMemoryTransactionRepository.java
 │   ├── RepositoryFactory.java
 │   └── TransactionRepository.java
@@ -75,6 +77,7 @@ src/com/gdb/
     ├── TestDynamicAccountRules.java
     ├── TestInterfaceFactory.java
     ├── TestJdbcAccountRepository.java
+    ├── TestJdbcTransactionRepository.java
     ├── TestJdbcConnection.java
     ├── TestRepositoryInMemory.java
     ├── testSubclassAccounts.java
@@ -95,6 +98,7 @@ src/com/gdb/
    - Configurable via `persistence.properties` through `RepositoryFactory`.
    - Thread-safe `InMemoryAccountRepository` and `InMemoryTransactionRepository`.
    - `JdbcAccountRepository` (SQLite, PreparedStatements) with CRUD and an atomic, rollback-safe `transfer` (Activity 23). See `docs/ACTIVITY_23.md`.
+   - `JdbcTransactionRepository` persists history; `DataMigrator` imports legacy logs idempotently (Activity 24). See `docs/ACTIVITY_24.md`.
 
 3. **Presentation & UI Layer (`AccountUI`)**
    - Menu-driven console interface supporting account opening, deposits, withdrawals, fund transfers, balance lookups, and audit history.
