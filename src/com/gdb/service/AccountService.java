@@ -73,6 +73,15 @@ public class AccountService {
         return account;
     }
 
+    /** Opens an account with its PIN set before it is persisted, so an invalid PIN creates nothing. */
+    public IAccount openAccount(String type, String name, int age, double initialBalance, int tenureYears, int pin) {
+        int accNo = accountRepository.nextAccountNumber();
+        IAccount account = AccountFactory.createAccount(accNo, name, age, initialBalance, type, tenureYears);
+        account.setPin(pin);
+        accountRepository.save(account);
+        return account;
+    }
+
     public void closeAccount(int accountNumber, int pin) throws AccountException {
         IAccount account = getAccount(accountNumber);
         if (account == null) {

@@ -96,10 +96,7 @@ public class AccountUI {
             out.print("Set 4-digit Security PIN (1000-9999): ");
             int pin = Integer.parseInt(scanner.nextLine().trim());
 
-            IAccount account = service.openAccount(type, name, age, balance, tenure);
-            if (account instanceof Account acc) {
-                acc.setPin(pin);
-            }
+            IAccount account = service.openAccount(type, name, age, balance, tenure, pin);
             out.println("SUCCESS: Account created successfully!");
             out.println("  Details: " + account);
         } catch (NumberFormatException e) {

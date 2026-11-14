@@ -4,6 +4,8 @@ import com.gdb.domain.*;
 import com.gdb.exceptions.*;
 import com.gdb.logging.MemoryLogDestination;
 import com.gdb.logging.TransactionLogger;
+import com.gdb.repository.InMemoryAccountRepository;
+import com.gdb.repository.InMemoryTransactionRepository;
 import com.gdb.service.AccountService;
 import com.gdb.ui.AccountUI;
 import java.io.ByteArrayInputStream;
@@ -22,7 +24,7 @@ public class TestAccountUI {
         System.out.println("[STEP 1] Initializing AccountService & AccountUI...");
         MemoryLogDestination memDest = new MemoryLogDestination();
         TransactionLogger logger = new TransactionLogger(memDest);
-        AccountService service = new AccountService(logger);
+        AccountService service = new AccountService(new InMemoryAccountRepository(), new InMemoryTransactionRepository(), logger);
         System.out.println("  Service initialized with MemoryLogDestination");
         System.out.println();
 

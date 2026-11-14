@@ -37,6 +37,7 @@ src/com/gdb/
 │   └── TransactionType.java
 ├── exceptions/         # Domain-specific checked banking exception hierarchy
 │   ├── AccountException.java
+│   ├── DataAccessException.java
 │   ├── InactiveAccountException.java
 │   ├── InsufficientBalanceException.java
 │   ├── InvalidAmountException.java
@@ -52,6 +53,7 @@ src/com/gdb/
 ├── repository/         # Repository Pattern contracts, factory & in-memory stores
 │   ├── AccountRepository.java
 │   ├── InMemoryAccountRepository.java
+│   ├── JdbcAccountRepository.java
 │   ├── InMemoryTransactionRepository.java
 │   ├── RepositoryFactory.java
 │   └── TransactionRepository.java
@@ -72,6 +74,7 @@ src/com/gdb/
     ├── TestCommandLogging.java
     ├── TestDynamicAccountRules.java
     ├── TestInterfaceFactory.java
+    ├── TestJdbcAccountRepository.java
     ├── TestJdbcConnection.java
     ├── TestRepositoryInMemory.java
     ├── testSubclassAccounts.java
@@ -91,6 +94,7 @@ src/com/gdb/
    - Clean separation of business logic from underlying data storage mechanisms.
    - Configurable via `persistence.properties` through `RepositoryFactory`.
    - Thread-safe `InMemoryAccountRepository` and `InMemoryTransactionRepository`.
+   - `JdbcAccountRepository` (SQLite, PreparedStatements) with CRUD and an atomic, rollback-safe `transfer` (Activity 23). See `docs/ACTIVITY_23.md`.
 
 3. **Presentation & UI Layer (`AccountUI`)**
    - Menu-driven console interface supporting account opening, deposits, withdrawals, fund transfers, balance lookups, and audit history.

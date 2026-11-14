@@ -174,6 +174,17 @@ public class Account implements IAccount, Serializable {
         return 0.0;
     }
 
+    /**
+     * Rebuilds persisted state on a freshly constructed account. Intended for the persistence
+     * layer only: it deliberately bypasses the validation applied by the normal operations.
+     */
+    public void restoreState(double balance, String status, Integer pin, int tenureYears) {
+        this.balance = balance;
+        this.status = status;
+        this.pin = pin;
+        this.tenureYears = tenureYears;
+    }
+
     public void validateActive() throws InactiveAccountException {
         if (!"Active".equals(this.status)) {
             throw new InactiveAccountException("Account is inactive. Please reopen the account or contact support.");

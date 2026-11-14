@@ -18,18 +18,9 @@ public class TestRepositoryInMemory {
         String mode = RepositoryFactory.getPersistenceMode();
         System.out.println("  Persistence mode loaded: " + mode + " [PASS]");
 
-        AccountRepository accountRepo;
-        TransactionRepository txnRepo;
-        try {
-            accountRepo = RepositoryFactory.getAccountRepository();
-        } catch (UnsupportedOperationException e) {
-            accountRepo = new InMemoryAccountRepository();
-        }
-        try {
-            txnRepo = RepositoryFactory.getTransactionRepository();
-        } catch (UnsupportedOperationException e) {
-            txnRepo = new InMemoryTransactionRepository();
-        }
+        // This driver tests the in-memory stores, so it must not depend on persistence.mode (jdbc would hit gdb.db).
+        AccountRepository accountRepo = new InMemoryAccountRepository();
+        TransactionRepository txnRepo = new InMemoryTransactionRepository();
 
         System.out.println("  AccountRepository instantiated: " + accountRepo.getClass().getSimpleName() + " [PASS]");
         System.out.println("  TransactionRepository instantiated: " + txnRepo.getClass().getSimpleName() + " [PASS]");

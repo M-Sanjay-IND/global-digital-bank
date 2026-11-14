@@ -18,6 +18,7 @@ public interface IAccount {
     void setPin(int pin) throws IllegalArgumentException;
     boolean verifyPin(int pin);
     boolean hasPin();
+    Integer getPin();
     void closeAccount() throws IllegalStateException;
     void reopenAccount() throws IllegalStateException;
     boolean canWithdraw(double amount);

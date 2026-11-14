@@ -3,6 +3,8 @@ package com.gdb.tests;
 import com.gdb.domain.*;
 import com.gdb.exceptions.*;
 import com.gdb.logging.*;
+import com.gdb.repository.InMemoryAccountRepository;
+import com.gdb.repository.InMemoryTransactionRepository;
 import com.gdb.service.AccountService;
 import java.util.List;
 
@@ -16,7 +18,7 @@ public class TestAccountService {
         // STEP 12
         LogDestination memDest = new MemoryLogDestination();
         TransactionLogger logger = new TransactionLogger(memDest);
-        AccountService service = new AccountService(logger);
+        AccountService service = new AccountService(new InMemoryAccountRepository(), new InMemoryTransactionRepository(), logger);
 
         try {
             // STEP 13

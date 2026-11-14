@@ -3,6 +3,7 @@ package com.gdb.db;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -23,8 +24,24 @@ public class SchemaInitializer {
                     stmt.execute(trimmed);
                 }
             }
+            migrateAccountsTable(stmt);
         } catch (SQLException e) {
             throw new RuntimeException("Failed to initialize database schema: " + e.getMessage(), e);
+        }
+    }
+
+    /** Databases created by Activity 22 lack tenure_years; add it in place. */
+    private static void migrateAccountsTable(Statement stmt) throws SQLException {
+        boolean hasTenure = false;
+        try (ResultSet rs = stmt.executeQuery("PRAGMA table_info(accounts)")) {
+            while (rs.next()) {
+                if ("tenure_years".equalsIgnoreCase(rs.getString("name"))) {
+                    hasTenure = true;
+                }
+            }
+        }
+        if (!hasTenure) {
+            stmt.execute("ALTER TABLE accounts ADD COLUMN tenure_years INTEGER NOT NULL DEFAULT 0");
         }
     }
 
